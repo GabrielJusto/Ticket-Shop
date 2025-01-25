@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\DTOs\CreateProductDTO;
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Collection;
 
 class ProductRepository implements IProductRepository
 {
@@ -13,4 +14,9 @@ class ProductRepository implements IProductRepository
         $product = new Product((array)$data);
         return $product->save();
     }
+
+    public function index() : Collection
+    {
+        return Product::all();
+    }   
 }

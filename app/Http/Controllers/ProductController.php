@@ -14,13 +14,20 @@ class ProductController
 
     public function store(CreateProductRequest $request, IProductRepository $repository)
     {
-        $repository->store(CreateProductDTO::create($request->validated()));
-        return response()->make(null, Response::HTTP_CREATED);
+        try {
+            $repository->store(CreateProductDTO::create($request->validated()));
+            return response()->noContent(Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to create product', 
+                'message' => $e->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     public function index(IProductRepository $repository)
     {
-        $product = $repository->index()->map(fn($product) => new ProductDetail($product->iProductId, $product->sName, $product->fPrice));
-        return response()->json($product);
+        $products = $repository->index()->transform(fn($product) => new ProductDetail($product->iProductId, $product->sName, $product->fPrice));
+        return response()->json($products);
     }
 }
